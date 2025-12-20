@@ -13,15 +13,17 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
+
         return new OpenAPI()
                 .info(new Info()
                         .title("Security Policy Engine API")
-                        .version("1.0.0")
-                        .description("API documentation for Security Policy Engine"))
+                        .description("API documentation for Security Policy Engine")
+                        .version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes("bearerAuth",
                                 new SecurityScheme()
+                                        .name("bearerAuth")
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")));
