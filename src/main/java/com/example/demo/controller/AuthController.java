@@ -1,15 +1,13 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.JwtResponse;
-import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.RegisterRequest;
 import com.example.demo.entity.UserAccount;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserAccountService;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,41 +15,46 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     @Autowired
-    private AuthenticationManager authManager;
-
-    @Autowired
-    private UserAccountService userService;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
     private JwtUtil jwtUtil;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @PostMapping("/register")
-    public UserAccount register(@RequestBody RegisterRequest req) {
-        UserAccount user = new UserAccount();
-        user.setEmployeeid(req.getEmployeeid());
-        user.setUsername(req.getUsername());
-        user.setEmail(req.getEmail());
-        user.setPassword(passwordEncoder.encode(req.getPassword()));
-        user.setRole(UserAccount.Role.valueOf(req.getRole()));
-
-        return userService.register(user);
-    }
+    private UserAccountService userAccountService;
 
     @PostMapping("/login")
-    public JwtResponse login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody UserAccount user) {
+        try {
+            // Authenticate user
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
+            );
 
-        UsernamePasswordAuthenticationToken token =
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
+            // Load full user from DB
+            UserAccount dbUser = userAccountService.findByUsername(user.getUsername());
+            if (dbUser == null) {
+                return ResponseEntity.badRequest().body("Invalid username");
+            }
 
-        authManager.authenticate(token);
+            // Generate JWT token including role
+            String token = jwtUtil.generateToken(dbUser.getUsername(), dbUser.getRole().name());
 
-        UserAccount user = userService.findByUsername(request.getUsername());
+            return ResponseEntity.ok().body(token);
 
-        String jwt = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
+    }
 
-        return new JwtResponse(jwt, user.getUsername(), user.getRole().name());
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody UserAccount user) {
+        try {
+            // Save user to DB
+            userAccountService.save(user);
+            return ResponseEntity.ok("User registered successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error registering user: " + e.getMessage());
+        }
     }
 }
