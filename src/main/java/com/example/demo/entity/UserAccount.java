@@ -1,64 +1,50 @@
 package com.example.demo.entity;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import jakarta.persistence.*;
+import java.util.Collection;
+import java.util.Collections;
 
 @Entity
-public class UserAccount {
+public class UserAccount implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String employeeid;
     private String username;
-    private String email;
     private String password;
+    private String email;
+    private String role;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    // Getters and Setters
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 
-    public enum Role {
-        ADMIN,
-        USER
+    // UserDetails methods
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority(role));
     }
 
-    public String getEmployeeid() {
-        return employeeid;
-    }
+    @Override
+    public boolean isAccountNonExpired() { return true; }
 
-    public void setEmployeeid(String employeeid) {
-        this.employeeid = employeeid;
-    }
+    @Override
+    public boolean isAccountNonLocked() { return true; }
 
-    public String getUsername() {
-        return username;
-    }
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
+    @Override
+    public boolean isEnabled() { return true; }
 }
