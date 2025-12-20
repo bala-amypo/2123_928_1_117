@@ -1,12 +1,12 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.entity.LoginEvent;
-import com.example.demo.entity.LoginEvent.LoginStatus;
-import com.example.demo.repository.LoginEventRepository;
-import com.example.demo.service.LoginEventService;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.example.demo.entity.LoginEvent;
+import com.example.demo.repository.LoginEventRepository;
+import com.example.demo.service.LoginEventService;
 
 @Service
 public class LoginEventServiceImpl implements LoginEventService {
@@ -18,7 +18,18 @@ public class LoginEventServiceImpl implements LoginEventService {
     }
 
     @Override
-    public List<LoginEvent> getEventsByStatus(LoginStatus status) {
-        return loginEventRepository.findByStatus(status);
+    public LoginEvent save(LoginEvent loginEvent) {
+        return loginEventRepository.save(loginEvent);
+    }
+
+    @Override
+    public List<LoginEvent> getUserLoginEvents(Long userId) {
+        return loginEventRepository.findByUserId(userId);
+    }
+
+    @Override
+    public List<LoginEvent> getUserFailedLogins(Long userId) {
+        return loginEventRepository.findByUserIdAndStatus(
+                userId, LoginEvent.LoginStatus.FAILED);
     }
 }

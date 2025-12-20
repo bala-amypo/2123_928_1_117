@@ -19,5 +19,23 @@ public class LoginEvent {
         FAILED
     }
 
-    // getters & setters
+    public Long getId() {
+        return id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public LoginStatus getStatus() {
+        return status;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public void setStatus(LoginStatus status) {
+        this.status = status;
+    }
 }
