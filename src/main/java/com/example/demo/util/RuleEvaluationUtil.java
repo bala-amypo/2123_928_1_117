@@ -1,30 +1,51 @@
 package com.example.demo.util;
 
+import java.util.List;
+
 import com.example.demo.entity.LoginEvent;
-import com.example.demo.entity.PolicyRule;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class RuleEvaluationUtil {
 
-    public boolean evaluateRule(PolicyRule rule, LoginEvent event) {
+    private RuleEvaluationUtil() {
+        // Utility class – prevent object creation
+    }
 
-        // Example rules:
-        switch (rule.getRuleCode()) {
+    /**
+     * Rule:
+     * If a user has 3 or more FAILED login attempts, flag as suspicious
+     */
+    public static boolean isUserSuspicious(List<LoginEvent> loginEvents) {
 
-            case "FAILED_LOGIN_LIMIT":
-                return event.getStatus().equalsIgnoreCase("FAILED");
+        long failedCount = loginEvents.stream()
+                .filter(event -> event.getStatus() == LoginEvent.LoginStatus.FAILED)
+                .count();
 
-            case "NEW_DEVICE_DETECTED":
-                return event.getDeviceid() != null;
+        return failedCount >= 3;
+    }
 
-            case "UNUSUAL_LOCATION":
-                return event.getLocation() != null
-                        && !event.getLocation().equalsIgnoreCase("CompanyHQ");
+    /**
+     * Rule:
+     * Check if last login attempt was FAILED
+     */
+    public static boolean isLastLoginFailed(List<LoginEvent> loginEvents) {
 
-            default:
-                return false;
+        if (loginEvents == null || loginEvents.isEmpty()) {
+            return false;
         }
+
+        LoginEvent lastEvent = loginEvents.get(loginEvents.size() - 1);
+
+        return lastEvent.getStatus() == LoginEvent.LoginStatus.FAILED;
+    }
+
+    /**
+     * Rule:
+     * Count number of failed login attempts
+     */
+    public static long countFailedLogins(List<LoginEvent> loginEvents) {
+
+        return loginEvents.stream()
+                .filter(event -> event.getStatus() == LoginEvent.LoginStatus.FAILED)
+                .count();
     }
 }
