@@ -11,7 +11,16 @@ public class LoginEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private LoginStatus status;
+
     private String deviceid;
     private String location;
+
+    
+    public enum LoginStatus {
+        SUCCESS,
+        FAILURE,
+        BLOCKED
+    }
 }
