@@ -1,13 +1,16 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.UserAccount;
-
 import java.util.List;
 
 public interface UserAccountService {
-    UserAccount findByUsername(String username);
 
-    void save(UserAccount user);
+    // Save a user
+    UserAccount save(UserAccount user);
 
-    List<UserAccount> getAllUsers(); // Add this
+    // Get all users
+    List<UserAccount> getAllUsers();
+
+    // Get a user by username
+    UserAccount getUserByUsername(String username);
 }
