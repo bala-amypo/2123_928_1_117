@@ -12,16 +12,11 @@ public class PolicyRule {
 
     private String name;
 
-    private boolean active; // Required for findByActiveTrue()
+    private boolean active;
 
-    public PolicyRule() {}
+    private String ruleCode;  // Added this field to fix your error
 
-    public PolicyRule(String name, boolean active) {
-        this.name = name;
-        this.active = active;
-    }
-
-    // Getters and setters
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -44,5 +39,13 @@ public class PolicyRule {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getRuleCode() {
+        return ruleCode;
+    }
+
+    public void setRuleCode(String ruleCode) {
+        this.ruleCode = ruleCode;
     }
 }
