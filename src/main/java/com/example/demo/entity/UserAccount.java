@@ -1,15 +1,12 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
-@Table(name = "user_accounts",
-       uniqueConstraints = {
-            @UniqueConstraint(columnNames = "employeeid"),
-            @UniqueConstraint(columnNames = "username"),
-            @UniqueConstraint(columnNames = "email")
-       })
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserAccount {
 
     @Id
@@ -24,21 +21,7 @@ public class UserAccount {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Enumerated(EnumType.STRING)
-    private Status status = Status.ACTIVE;
-
-    private LocalDateTime createdAt = LocalDateTime.now();
-
     public enum Role {
-        ADMIN, USER, AUDITOR
+        ADMIN, USER
     }
-
-    public enum Status {
-        ACTIVE, SUSPENDED
-    }
-
-    public UserAccount() {}
-
-    // Getters & Setters
-    // ...
 }
