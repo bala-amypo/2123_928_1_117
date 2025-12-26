@@ -39,13 +39,13 @@ public class UserAccountController {
     }
 
     // ------------------ Get user by username ------------------
-    @GetMapping("/username/{username}")
-    public ResponseEntity<UserAccount> getByUsername(@PathVariable String username) {
-        UserAccount user = service.findByUsername(username).orElseThrow(
-                () -> new RuntimeException("User not found")
-        );
-        return ResponseEntity.ok(user);
-    }
+    // @GetMapping("/username/{username}")
+    // public ResponseEntity<UserAccount> getByUsername(@PathVariable String username) {
+    //     UserAccount user = service.findByUsername(username).orElseThrow(
+    // () -> new RuntimeException("User not found")
+    //     );
+    //     return ResponseEntity.ok(user);
+    // }
 
     // ------------------ List all users ------------------
     @GetMapping
