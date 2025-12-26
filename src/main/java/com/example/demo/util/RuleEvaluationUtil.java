@@ -1,51 +1,61 @@
 package com.example.demo.util;
 
+import com.example.demo.entity.LoginEvent;
+import com.example.demo.entity.PolicyRule;
+import com.example.demo.entity.ViolationRecord;
+import com.example.demo.service.ViolationRecordService;
+import com.example.demo.service.PolicyRuleService;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.demo.entity.LoginEvent;
-
+@Component
 public class RuleEvaluationUtil {
 
-    private RuleEvaluationUtil() {
-        // Utility class – prevent object creation
+    private final PolicyRuleService ruleService;
+    private final ViolationRecordService violationService;
+
+    public RuleEvaluationUtil(PolicyRuleService ruleService,
+                              ViolationRecordService violationService) {
+        this.ruleService = ruleService;
+        this.violationService = violationService;
     }
 
     /**
-     * Rule:
-     * If a user has 3 or more FAILED login attempts, flag as suspicious
+     * Evaluate a login event against all active rules.
+     * Logs a ViolationRecord if any rule is triggered.
      */
-    public static boolean isUserSuspicious(List<LoginEvent> loginEvents) {
+    public void evaluateLoginEvent(LoginEvent event) {
 
-        long failedCount = loginEvents.stream()
-                .filter(event -> event.getStatus() == LoginEvent.LoginStatus.FAILED)
-                .count();
+        List<PolicyRule> activeRules = ruleService.getActiveRules();
 
-        return failedCount >= 3;
-    }
+        for (PolicyRule rule : activeRules) {
 
-    /**
-     * Rule:
-     * Check if last login attempt was FAILED
-     */
-    public static boolean isLastLoginFailed(List<LoginEvent> loginEvents) {
+            boolean violationDetected = false;
 
-        if (loginEvents == null || loginEvents.isEmpty()) {
-            return false;
+            // Example: You can customize evaluation logic per rule conditions
+            String conditions = rule.getConditionsJson();
+
+            if (conditions.contains("FAILED_LOGIN") && "FAILED".equals(event.getLoginStatus())) {
+                violationDetected = true;
+            }
+
+            // Add more rule logic here as needed
+
+            if (violationDetected) {
+                ViolationRecord record = new ViolationRecord();
+                record.setUserId(event.getUserId());
+                record.setEventId(event.getId());
+                record.setPolicyRuleId(rule.getId());
+                record.setViolationType("LOGIN_VIOLATION");
+                record.setSeverity(rule.getSeverity());
+                record.setDetails("Login violation triggered by rule: " + rule.getRuleCode());
+                record.setDetectedAt(LocalDateTime.now());
+                record.setResolved(false);
+
+                violationService.logViolation(record);
+            }
         }
-
-        LoginEvent lastEvent = loginEvents.get(loginEvents.size() - 1);
-
-        return lastEvent.getStatus() == LoginEvent.LoginStatus.FAILED;
-    }
-
-    /**
-     * Rule:
-     * Count number of failed login attempts
-     */
-    public static long countFailedLogins(List<LoginEvent> loginEvents) {
-
-        return loginEvents.stream()
-                .filter(event -> event.getStatus() == LoginEvent.LoginStatus.FAILED)
-                .count();
     }
 }
