@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.DeviceProfile;
 import com.example.demo.service.DeviceProfileService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,22 +17,32 @@ public class DeviceProfileController {
         this.service = service;
     }
 
-    // ✅ Register Device
+    // ------------------ Register device ------------------
     @PostMapping("/register")
-    public DeviceProfile register(@RequestBody DeviceProfile device) {
-        return service.registerDevice(device);
+    public ResponseEntity<DeviceProfile> registerDevice(@RequestBody DeviceProfile device) {
+        DeviceProfile registered = service.registerDevice(device);
+        return ResponseEntity.ok(registered);
     }
 
-    // ✅ Update Trust Status
-    @PutMapping("/{id}/trust/{status}")
-    public DeviceProfile trust(@PathVariable Long id,
-                               @PathVariable boolean status) {
-        return service.updateTrustStatus(id, status);
+    // ------------------ Update trusted status ------------------
+    @PutMapping("/{id}/trust")
+    public ResponseEntity<DeviceProfile> updateTrust(@PathVariable Long id, @RequestParam boolean trust) {
+        DeviceProfile updated = service.updateTrustStatus(id, trust);
+        return ResponseEntity.ok(updated);
     }
 
-    // ✅ Devices by User
+    // ------------------ Get devices by user ------------------
     @GetMapping("/user/{userId}")
-    public List<DeviceProfile> devices(@PathVariable Long userId) {
-        return service.getDevicesByUser(userId);
+    public ResponseEntity<List<DeviceProfile>> getDevicesByUser(@PathVariable Long userId) {
+        List<DeviceProfile> devices = service.getDevicesByUser(userId);
+        return ResponseEntity.ok(devices);
+    }
+
+    // ------------------ Lookup device by deviceId ------------------
+    @GetMapping("/lookup/{deviceId}")
+    public ResponseEntity<DeviceProfile> getDeviceById(@PathVariable String deviceId) {
+        DeviceProfile device = service.findByDeviceId(deviceId)
+                .orElseThrow(() -> new RuntimeException("Device not found"));
+        return ResponseEntity.ok(device);
     }
 }
