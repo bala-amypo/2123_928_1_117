@@ -1,7 +1,7 @@
 package com.example.demo.config;
 
 import com.example.demo.security.JwtAuthenticationFilter;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,28 +14,21 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-    // Optional JWT filter (will be injected only if exists)
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    // 👇 OPTIONAL injection (NO startup failure)
+    @Autowired(required = false)
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            // Disable CSRF (REST API)
             .csrf(csrf -> csrf.disable())
-
-            // Stateless session
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-
-            // Authorization rules
             .authorizeHttpRequests(auth -> auth
-
-                // 🔓 PUBLIC ENDPOINTS
                 .requestMatchers(
                     "/auth/**",
                     "/api/logins/record",
@@ -43,12 +36,10 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/swagger-ui.html"
                 ).permitAll()
-
-                // 🔒 ALL OTHERS REQUIRE AUTH
                 .anyRequest().authenticated()
             );
 
-        // JWT Filter (only if enabled)
+        // ✅ Add JWT filter ONLY if it exists
         if (jwtAuthenticationFilter != null) {
             http.addFilterBefore(
                 jwtAuthenticationFilter,
@@ -59,14 +50,12 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Required for authentication
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // Password encoder (FIXES missing PasswordEncoder error)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
