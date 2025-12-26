@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.UserAccount;
 import com.example.demo.service.UserAccountService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,33 +17,39 @@ public class UserAccountController {
         this.service = service;
     }
 
-    // ✅ Register User (Swagger shows ONLY JSON body)
-    @PostMapping("/register")
-    public UserAccount register(@RequestBody UserAccount user) {
-        return service.register(user);
+    // Create user
+    @PostMapping
+    public ResponseEntity<UserAccount> createUser(@RequestBody UserAccount user) {
+        UserAccount created = service.createUser(user);
+        return ResponseEntity.ok(created);
     }
 
-    // ✅ Get User by ID
+    // Get user by ID
     @GetMapping("/{id}")
-    public UserAccount getById(@PathVariable Long id) {
-        return service.getById(id);
+    public ResponseEntity<UserAccount> getUserById(@PathVariable Long id) {
+        UserAccount user = service.getUserById(id);
+        return ResponseEntity.ok(user);
     }
 
-    // ✅ Get User by Username
+    // Get user by username (or username/email)
     @GetMapping("/username/{username}")
-    public UserAccount getByUsername(@PathVariable String username) {
-        return service.getByUsername(username);
+    public ResponseEntity<UserAccount> getUserByUsername(@PathVariable String username) {
+        UserAccount user = service.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(user);
     }
 
-    // ✅ Get All Users
+    // Deactivate user
+    @PutMapping("/{id}/deactivate")
+    public ResponseEntity<UserAccount> deactivateUser(@PathVariable Long id) {
+        UserAccount user = service.updateUserStatus(id, "SUSPENDED");
+        return ResponseEntity.ok(user);
+    }
+
+    // List all users
     @GetMapping
-    public List<UserAccount> getAll() {
-        return service.getAllUsers();
-    }
-
-    // ✅ Deactivate User
-    @PutMapping("/deactivate/{id}")
-    public UserAccount deactivate(@PathVariable Long id) {
-        return service.deactivateUser(id);
+    public ResponseEntity<List<UserAccount>> getAllUsers() {
+        List<UserAccount> users = service.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 }
