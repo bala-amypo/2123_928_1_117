@@ -16,8 +16,7 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-
-            // ✅ Server URL (from SwaggerConfig)
+            // ✅ Server URL (important for Swagger fetch)
             .servers(List.of(
                 new Server().url("https://9137.408procr.amypo.ai")
             ))
@@ -32,9 +31,7 @@ public class OpenApiConfig {
                 )
             )
 
-            // ✅ Apply JWT globally (Authorize 🔒 button)
-            .addSecurityItem(
-                new SecurityRequirement().addList("bearerAuth")
-            );
+            // ✅ Apply JWT globally
+            .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
     }
 }
