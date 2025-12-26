@@ -2,41 +2,55 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.ViolationRecord;
 import com.example.demo.service.ViolationRecordService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/violations")
+@RequiredArgsConstructor
 public class ViolationRecordController {
 
-    private final ViolationRecordService service;
+    private final ViolationRecordService violationService;
 
-    public ViolationRecordController(ViolationRecordService service) {
-        this.service = service;
-    }
-
-    // ✅ Log Violation
+    // POST /api/violations - Log a new violation
     @PostMapping
-    public ViolationRecord log(@RequestBody ViolationRecord v) {
-        return service.logViolation(v);
+    @Transactional
+    public ResponseEntity<ViolationRecord> logViolation(@Valid @RequestBody ViolationRecord violation) {
+        ViolationRecord saved = violationService.saveViolation(violation);
+        return ResponseEntity.ok(saved);
     }
 
-    // ✅ Resolve Violation
-    @PutMapping("/{id}/resolve")
-    public ViolationRecord resolve(@PathVariable Long id) {
-        return service.markResolved(id);
-    }
-
-    // ✅ Violations by User
+    // GET /api/violations/user/{userId} - Get violations by user
     @GetMapping("/user/{userId}")
-    public List<ViolationRecord> byUser(@PathVariable Long userId) {
-        return service.getViolationsByUser(userId);
+    public ResponseEntity<List<ViolationRecord>> getViolationsByUser(@PathVariable Long userId) {
+        List<ViolationRecord> violations = violationService.getViolationsByUser(userId);
+        return ResponseEntity.ok(violations);
     }
 
-    // ✅ Unresolved Violations
+    // GET /api/violations/unresolved - List unresolved violations
     @GetMapping("/unresolved")
-    public List<ViolationRecord> unresolved() {
-        return service.getUnresolvedViolations();
+    public ResponseEntity<List<ViolationRecord>> getUnresolvedViolations() {
+        List<ViolationRecord> violations = violationService.getUnresolvedViolations();
+        return ResponseEntity.ok(violations);
+    }
+
+    // GET /api/violations - List all violations
+    @GetMapping
+    public ResponseEntity<List<ViolationRecord>> getAllViolations() {
+        List<ViolationRecord> violations = violationService.getAllViolations();
+        return ResponseEntity.ok(violations);
+    }
+
+    // PUT /api/violations/{id}/resolve - Mark violation as resolved
+    @PutMapping("/{id}/resolve")
+    @Transactional
+    public ResponseEntity<ViolationRecord> resolveViolation(@PathVariable Long id) {
+        ViolationRecord resolved = violationService.resolveViolation(id);
+        return ResponseEntity.ok(resolved);
     }
 }
