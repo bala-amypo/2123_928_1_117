@@ -1,19 +1,13 @@
 package com.example.demo.repository;
 
-import java.util.List;
-
+import com.example.demo.entity.LoginEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.demo.entity.LoginEvent;
+import java.util.List;
 
-public interface LoginEventRepository
-        extends JpaRepository<LoginEvent, Long> {
+public interface LoginEventRepository extends JpaRepository<LoginEvent, Long> {
 
-    // Get all events for a user
     List<LoginEvent> findByUserId(Long userId);
 
-    // Get only FAILED events for a user
-    List<LoginEvent> findByUserIdAndStatus(
-            Long userId,
-            LoginEvent.LoginStatus status);
+    List<LoginEvent> findByUserIdAndLoginStatus(Long userId, String loginStatus);
 }

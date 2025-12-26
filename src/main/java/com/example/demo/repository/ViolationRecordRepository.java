@@ -7,8 +7,7 @@ import java.util.List;
 
 public interface ViolationRecordRepository extends JpaRepository<ViolationRecord, Long> {
 
-    List<ViolationRecord> findByUserid(Long userid);
+    List<ViolationRecord> findByUserId(Long userId);
 
     List<ViolationRecord> findByResolvedFalse();
-
 }
