@@ -17,52 +17,57 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    // 🔐 Password encoder
+    /* ---------------- PASSWORD ENCODER ---------------- */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 🔑 JWT Utility Bean
+    /* ---------------- JWT UTIL ---------------- */
     @Bean
     public JwtUtil jwtUtil() {
         return new JwtUtil(
-                "very-secret-key-for-tests-1234567890",
-                3600000,
+                "mySecretKey123456789012345678901234567890",
+                86400000,
                 true
         );
     }
 
-    // 🔐 JWT Filter Bean
+    /* ---------------- JWT FILTER ---------------- */
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil) {
         return new JwtAuthenticationFilter(jwtUtil);
     }
 
-    // 🔐 Security Filter Chain
+    /* ---------------- SECURITY FILTER CHAIN ---------------- */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http,
-                                           JwtAuthenticationFilter jwtFilter,
-                                           JwtAuthenticationEntryPoint entryPoint) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtAuthenticationFilter jwtFilter,
+            JwtAuthenticationEntryPoint entryPoint
+    ) throws Exception {
 
         http
             .csrf(csrf -> csrf.disable())
-            .sessionManagement(session ->
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint))
+            .sessionManagement(sm ->
+                    sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(ex ->
+                    ex.authenticationEntryPoint(entryPoint))
             .authorizeHttpRequests(auth -> auth
-                    // PUBLIC
-                    .requestMatchers(
-                            "/auth/**",
-                            "/status",
-                            "/swagger-ui/**",
-                            "/v3/api-docs/**"
-                    ).permitAll()
 
-                    // PROTECTED
-                    .requestMatchers("/api/**").authenticated()
+                /* 🔓 PUBLIC ENDPOINTS */
+                .requestMatchers(
+                        "/auth/**",
+                        "/api/logins/record",   // 🔥 FIX 1
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html"
+                ).permitAll()
 
-                    .anyRequest().permitAll()
+                /* 🔐 SECURED */
+                .requestMatchers("/api/**").authenticated()
+
+                .anyRequest().permitAll()
             );
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -70,10 +75,11 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 🔐 Authentication Manager
+    /* ---------------- AUTH MANAGER ---------------- */
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
+            AuthenticationConfiguration config
+    ) throws Exception {
         return config.getAuthenticationManager();
     }
 }
