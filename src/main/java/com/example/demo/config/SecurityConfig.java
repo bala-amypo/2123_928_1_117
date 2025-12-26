@@ -36,7 +36,7 @@ public class SecurityConfig {
                     "/status"
                 ).permitAll()
                 .anyRequest().authenticated()
-            );
+                );
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
