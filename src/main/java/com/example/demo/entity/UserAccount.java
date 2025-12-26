@@ -11,7 +11,7 @@ public class UserAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // ✅ Add this if missing
+    private Long id;
 
     @NotBlank
     @Column(unique = true)
@@ -33,6 +33,18 @@ public class UserAccount {
     private String status; // ACTIVE / SUSPENDED
 
     private LocalDateTime createdAt;
+
+    // ------------------ Constructors ------------------
+    public UserAccount() {}
+
+    public UserAccount(String employeeId, String username, String email, String password, String role, String status) {
+        this.employeeId = employeeId;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.status = status;
+    }
 
     // ------------------ Getters & Setters ------------------
     public Long getId() { return id; }
