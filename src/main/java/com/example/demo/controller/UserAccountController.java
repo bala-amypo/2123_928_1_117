@@ -17,36 +17,37 @@ public class UserAccountController {
         this.service = service;
     }
 
-    // Create user
+    // ------------------ Create new user ------------------
     @PostMapping
     public ResponseEntity<UserAccount> createUser(@RequestBody UserAccount user) {
         UserAccount created = service.createUser(user);
         return ResponseEntity.ok(created);
     }
 
-    // Get user by ID
+    // ------------------ Get user by ID ------------------
     @GetMapping("/{id}")
     public ResponseEntity<UserAccount> getUserById(@PathVariable Long id) {
         UserAccount user = service.getUserById(id);
         return ResponseEntity.ok(user);
     }
 
-    // Get user by username (or username/email)
+    // ------------------ Update account status ------------------
+    @PutMapping("/{id}/status")
+    public ResponseEntity<UserAccount> updateStatus(@PathVariable Long id, @RequestParam String status) {
+        UserAccount updated = service.updateUserStatus(id, status);
+        return ResponseEntity.ok(updated);
+    }
+
+    // ------------------ Get user by username ------------------
     @GetMapping("/username/{username}")
-    public ResponseEntity<UserAccount> getUserByUsername(@PathVariable String username) {
-        UserAccount user = service.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public ResponseEntity<UserAccount> getByUsername(@PathVariable String username) {
+        UserAccount user = service.findByUsername(username).orElseThrow(
+                () -> new RuntimeException("User not found")
+        );
         return ResponseEntity.ok(user);
     }
 
-    // Deactivate user
-    @PutMapping("/{id}/deactivate")
-    public ResponseEntity<UserAccount> deactivateUser(@PathVariable Long id) {
-        UserAccount user = service.updateUserStatus(id, "SUSPENDED");
-        return ResponseEntity.ok(user);
-    }
-
-    // List all users
+    // ------------------ List all users ------------------
     @GetMapping
     public ResponseEntity<List<UserAccount>> getAllUsers() {
         List<UserAccount> users = service.getAllUsers();
