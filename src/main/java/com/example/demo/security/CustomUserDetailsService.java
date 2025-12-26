@@ -1,31 +1,35 @@
 package com.example.demo.security;
 
 import com.example.demo.entity.UserAccount;
-import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.UserAccountRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.List;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserAccountRepository userRepo;
+    private final UserAccountRepository repo;
+
+    public CustomUserDetailsService(UserAccountRepository repo) {
+        this.repo = repo;
+    }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String usernameOrEmail)
+            throws UsernameNotFoundException {
 
-        UserAccount user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+        UserAccount user = repo.findByUsername(usernameOrEmail)
+                .or(() -> repo.findByEmail(usernameOrEmail))
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found"));
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
+        return new User(
+                user.getEmail(),
                 user.getPassword(),
-                Collections.emptyList()
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
         );
     }
 }
