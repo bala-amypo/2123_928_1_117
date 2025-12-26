@@ -16,7 +16,17 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-    // ✅ DEFINE FILTER AS A BEAN
+    // ✅ JwtUtil BEAN (THIS FIXES YOUR ERROR)
+    @Bean
+    public JwtUtil jwtUtil() {
+        return new JwtUtil(
+                "very-secret-key-for-tests-1234567890",
+                3600000,
+                true
+        );
+    }
+
+    // ✅ JwtAuthenticationFilter BEAN
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil) {
         return new JwtAuthenticationFilter(jwtUtil);
@@ -51,7 +61,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ✅ GLOBAL CORS (Swagger fix)
+    // ✅ GLOBAL CORS (Swagger + Browser FIX)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
