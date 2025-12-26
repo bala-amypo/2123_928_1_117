@@ -2,8 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.ViolationRecord;
 import com.example.demo.service.ViolationRecordService;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,21 +10,33 @@ import java.util.List;
 @RequestMapping("/api/violations")
 public class ViolationRecordController {
 
-    @Autowired
-    private ViolationRecordService violationService;
+    private final ViolationRecordService service;
 
+    public ViolationRecordController(ViolationRecordService service) {
+        this.service = service;
+    }
+
+    // ✅ Log Violation
     @PostMapping
-    public ViolationRecord save(@RequestBody ViolationRecord record) {
-        return violationService.save(record);
+    public ViolationRecord log(@RequestBody ViolationRecord v) {
+        return service.logViolation(v);
     }
 
-    @GetMapping("/user/{userid}")
-    public List<ViolationRecord> getUserViolations(@PathVariable Long userid) {
-        return violationService.getUserViolations(userid);
+    // ✅ Resolve Violation
+    @PutMapping("/{id}/resolve")
+    public ViolationRecord resolve(@PathVariable Long id) {
+        return service.markResolved(id);
     }
 
+    // ✅ Violations by User
+    @GetMapping("/user/{userId}")
+    public List<ViolationRecord> byUser(@PathVariable Long userId) {
+        return service.getViolationsByUser(userId);
+    }
+
+    // ✅ Unresolved Violations
     @GetMapping("/unresolved")
-    public List<ViolationRecord> getUnresolved() {
-        return violationService.getUnresolvedViolations();
+    public List<ViolationRecord> unresolved() {
+        return service.getUnresolvedViolations();
     }
 }

@@ -2,8 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.DeviceProfile;
 import com.example.demo.service.DeviceProfileService;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,21 +10,28 @@ import java.util.List;
 @RequestMapping("/api/devices")
 public class DeviceProfileController {
 
-    @Autowired
-    private DeviceProfileService deviceService;
+    private final DeviceProfileService service;
 
-    @PostMapping
-    public DeviceProfile save(@RequestBody DeviceProfile profile) {
-        return deviceService.save(profile);
+    public DeviceProfileController(DeviceProfileService service) {
+        this.service = service;
     }
 
-    @GetMapping("/{deviceid}")
-    public DeviceProfile getDevice(@PathVariable String deviceid) {
-        return deviceService.findByDeviceId(deviceid);
+    // ✅ Register Device
+    @PostMapping("/register")
+    public DeviceProfile register(@RequestBody DeviceProfile device) {
+        return service.registerDevice(device);
     }
 
-    @GetMapping("/user/{userid}")
-    public List<DeviceProfile> getUserDevices(@PathVariable Long userid) {
-        return deviceService.getUserDevices(userid);
+    // ✅ Update Trust Status
+    @PutMapping("/{id}/trust/{status}")
+    public DeviceProfile trust(@PathVariable Long id,
+                               @PathVariable boolean status) {
+        return service.updateTrustStatus(id, status);
+    }
+
+    // ✅ Devices by User
+    @GetMapping("/user/{userId}")
+    public List<DeviceProfile> devices(@PathVariable Long userId) {
+        return service.getDevicesByUser(userId);
     }
 }

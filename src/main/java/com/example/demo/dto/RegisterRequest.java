@@ -2,20 +2,33 @@ package com.example.demo.dto;
 
 public class RegisterRequest {
 
-    private String employeeid;
+    private String employeeId;
     private String username;
     private String email;
     private String password;
-    private String role;     // ADMIN, USER, AUDITOR
+    private String role; // optional
 
-    public RegisterRequest() {}
-
-    public String getEmployeeid() {
-        return employeeid;
+    public RegisterRequest() {
     }
 
-    public void setEmployeeid(String employeeid) {
-        this.employeeid = employeeid;
+    public RegisterRequest(String employeeId,
+                           String username,
+                           String email,
+                           String password,
+                           String role) {
+        this.employeeId = employeeId;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
     }
 
     public String getUsername() {
@@ -38,6 +51,7 @@ public class RegisterRequest {
         return password;
     }
 
+    // ❗ Plain password (hashed in service layer)
     public void setPassword(String password) {
         this.password = password;
     }
@@ -46,6 +60,7 @@ public class RegisterRequest {
         return role;
     }
 
+    // Defaults handled in service
     public void setRole(String role) {
         this.role = role;
     }
